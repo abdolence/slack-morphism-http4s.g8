@@ -40,6 +40,7 @@ class SlackPushEventsRoutes[F[_] : Sync](
       case callbackEvent: SlackEventCallback => {
         extractSlackWorkspaceToken[F]( callbackEvent.team_id ) { implicit slackApiToken =>
           callbackEvent.event match {
+
             case body: SlackAppHomeOpenedEvent => {
               logger.info( s"User opened home: \${body}" )
 
@@ -49,11 +50,16 @@ class SlackPushEventsRoutes[F[_] : Sync](
                 sendWelcomeMessage( body.channel, body.user )
               }
             }
+
             case msg: SlackUserMessage => {
               logger.info(
                 s"Received a user message '\${msg.text.getOrElse( "-" )}' in \${msg.channel.getOrElse( "-" )}"
               )
               sendReplyToMsg( msg )
+            }
+
+            case removeToken: SlackTokensRevokedEvent => {
+                removeTokens( callbackEvent.team_id, removeToken )
             }
 
             case unknownBody: SlackEventCallbackBody => {
@@ -172,6 +178,10 @@ class SlackPushEventsRoutes[F[_] : Sync](
           }
         }
 
+    }
+
+    def removeTokens( workspaceId: String, re: SlackTokensRevokedEvent ): F[Response[F]] = {
+        tokensDb.removeTokens( workspaceId, re.tokens.oauth.toSet ++ re.tokens.bot.toSet ).flatMap( _ => Ok() )
     }
 
     HttpRoutes.of[F] {

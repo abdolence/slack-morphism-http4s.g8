@@ -8,7 +8,7 @@ import com.typesafe.scalalogging.StrictLogging
 import $package$.config.AppConfig
 import cats.effect._
 import cats.effect.IO
-import swaydb.{ IO => _, _ }
+import swaydb.{ IO => _, Set => _, _ }
 import swaydb.serializers.Default._
 import swaydb.cats.effect.Tag._
 
@@ -35,15 +35,15 @@ class SlackTokensDb[F[_] : ConcurrentEffect]( storage: SlackTokensDb.SwayDbType 
             )
           )
         )
-        .map { record =>
-          logger.debug( s"Inserting record for : \${teamId}/\${tokenRecord.userId}" )
-          storage.put( teamId, record )
-          ()
+        .flatMap { record =>
+            storage.put( teamId, record ).map { _ =>
+                logger.info( s"Inserting record for : \${teamId}/\${tokenRecord.userId}" )
+            }
         }
     )
   }
 
-  def removeToken( teamId: String, userId: String ): F[Unit] = {
+  def removeTokens( teamId: String, users: Set[String] ): F[Unit] = {
     LiftIO[F].liftIO[Unit](
       storage
         .get( key = teamId )
@@ -54,10 +54,10 @@ class SlackTokensDb[F[_] : ConcurrentEffect]( storage: SlackTokensDb.SwayDbType 
                 .put(
                   teamId,
                   record.copy(
-                    tokens = record.tokens.filterNot( _.userId == userId )
+                    tokens = record.tokens.filterNot( token => users.contains( token.userId ) )
                   )
                 )
-                .map( _ => () )
+                .map( _ => logger.info( s"Removed tokens for: \${users.mkString( "," )}" ) )
             }
             .getOrElse( IO.unit )
         )

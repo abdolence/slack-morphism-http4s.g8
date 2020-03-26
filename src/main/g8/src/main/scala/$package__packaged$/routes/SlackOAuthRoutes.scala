@@ -8,7 +8,9 @@ import org.http4s._
 import org.http4s.implicits._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.Location
-import org.latestbit.slack.morphism.client.SlackApiClientT
+
+import org.latestbit.slack.morphism.client.{ SlackApiClientError, SlackApiClientT }
+import org.latestbit.slack.morphism.common.SlackApiError
 
 import $package$.config.AppConfig
 import $package$.db.SlackTokensDb
@@ -57,18 +59,20 @@ class SlackOAuthRoutes[F[_] : Sync](
                 code = oauthCode,
                 redirectUri = config.slackAppConfig.redirectUrl
               )
-            ).map { tokens =>
+            ).flatMap { tokens =>
                 logger.info( s"Received OAuth access tokens: \${tokens}" )
-                tokensDb
-                  .insertToken(
-                    teamId = tokens.team.id,
-                    SlackTokensDb.TokenRecord(
-                      tokenType = tokens.token_type,
-                      scope = tokens.scope,
-                      tokenValue = tokens.access_token,
-                      userId = tokens.bot_user_id.getOrElse( tokens.authed_user.id )
-                    )
-                  )
+                EitherT(
+                    tokensDb
+                      .insertToken(
+                        teamId = tokens.team.id,
+                        SlackTokensDb.TokenRecord(
+                          tokenType = tokens.token_type,
+                          scope = tokens.scope,
+                          tokenValue = tokens.access_token,
+                          userId = tokens.bot_user_id.getOrElse( tokens.authed_user.id )
+                        )
+                      ).map( _.asRight[SlackApiError] )
+                )
               }
               .value
               .flatMap {
