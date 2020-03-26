@@ -6,7 +6,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import org.latestbit.slack.morphism.client.SlackApiClientT
-import org.latestbit.slack.morphism.client.reqresp.chat.SlackApiPostEventReply
+import org.latestbit.slack.morphism.events.SlackApiEventMessageReply
 import org.latestbit.slack.morphism.common.SlackResponseTypes
 
 import $package$.config.AppConfig
@@ -35,10 +35,9 @@ class SlackCommandEventsRoutes[F[_] : Sync](
                   text
                 )
 
-                slackApiClient.chat
-                  .postEventReply(
+                 slackApiClient.events.reply(
                     response_url = responseUrl,
-                    SlackApiPostEventReply(
+                    SlackApiEventMessageReply(
                       text = commandReply.renderPlainText(),
                       blocks = commandReply.renderBlocks(),
                       response_type = Some( SlackResponseTypes.EPHEMERAL )
