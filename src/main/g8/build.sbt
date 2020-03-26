@@ -29,7 +29,7 @@ ThisBuild / javacOptions ++= Seq(
 )
 
 // Required dependencies
-val slackMorphismVersion = "1.2.1"
+val slackMorphismVersion = "1.2.3"
 
 // This template is for akka and http4s as a primary framework
 val http4sVersion = "0.21.1"
@@ -43,6 +43,8 @@ val scoptVersion = "3.7.1"
 // To provide a ready to work example, we're using in this template embedded SwayDb to store tokens
 // You should consider to use more appropriate solutions depends on your requirements
 val swayDbVersion = "0.11"
+
+val kindProjectorVer = "0.11.0"
 
 lazy val compilerPluginSettings = Seq(
   addCompilerPlugin( "org.typelevel" % "kind-projector" % kindProjectorVer cross CrossVersion.full )

@@ -10,12 +10,14 @@ import org.http4s.implicits._
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.middleware.Logger
 import org.latestbit.slack.morphism.client.SlackApiClient
-import org.latestbit.slack.morphism.examples.http4s.config.AppConfig
-import org.latestbit.slack.morphism.examples.http4s.db.SlackTokensDb
-import org.latestbit.slack.morphism.examples.http4s.routes._
 import sttp.client.http4s.Http4sBackend
 
 import scala.concurrent.ExecutionContext.global
+
+import $package$.config.AppConfig
+import $package$.db.SlackTokensDb
+import $package$.routes._
+
 
 object Http4sServer {
 

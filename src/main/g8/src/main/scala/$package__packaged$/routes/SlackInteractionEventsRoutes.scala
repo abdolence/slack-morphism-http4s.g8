@@ -31,21 +31,21 @@ class SlackInteractionEventsRoutes[F[_] : Sync](
       extractSlackWorkspaceToken[F]( event.team.id ) { implicit apiToken =>
         event match {
           case blockActionEvent: SlackInteractionBlockActionEvent => {
-            logger.info( s"Received a block action event: ${blockActionEvent}" )
+            logger.info( s"Received a block action event: \${blockActionEvent}" )
             showDummyModal( blockActionEvent.trigger_id )
           }
           case messageActionEvent: SlackInteractionMessageActionEvent => {
-            logger.info( s"Received a message action event: ${messageActionEvent}" )
+            logger.info( s"Received a message action event: \${messageActionEvent}" )
             showDummyModal( messageActionEvent.trigger_id )
           }
           case actionSubmissionEvent: SlackInteractionViewSubmissionEvent => {
             actionSubmissionEvent.view.stateParams.state.foreach { state =>
-              logger.info( s"Received action submission state: ${state}" )
+              logger.info( s"Received action submission state: \${state}" )
             }
             Ok( "" ) // "" is required here by Slack
           }
           case interactionEvent: SlackInteractionEvent => {
-            logger.warn( s"We don't handle this interaction in this example: ${interactionEvent}" )
+            logger.warn( s"We don't handle this interaction in this example: \${interactionEvent}" )
             Ok()
           }
         }
@@ -63,7 +63,7 @@ class SlackInteractionEventsRoutes[F[_] : Sync](
         )
         .flatMap {
           case Right( resp ) => {
-            logger.info( s"Modal view has been opened: ${resp}" )
+            logger.info( s"Modal view has been opened: \${resp}" )
             Ok()
           }
           case Left( err ) => {

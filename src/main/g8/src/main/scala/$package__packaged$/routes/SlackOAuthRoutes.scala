@@ -49,7 +49,7 @@ class SlackOAuthRoutes[F[_] : Sync](
       case GET -> Root / basePath / "callback" :? QueryCodeParam( code ) +& ErrorCodeParam( error ) => {
         ( code, error ) match {
           case ( Some( oauthCode ), _ ) => {
-            logger.info( s"Received OAuth access code: ${oauthCode}" )
+            logger.info( s"Received OAuth access code: \${oauthCode}" )
             EitherT(
               slackApiClient.oauth.v2.access(
                 clientId = config.slackAppConfig.clientId,
@@ -58,7 +58,7 @@ class SlackOAuthRoutes[F[_] : Sync](
                 redirectUri = config.slackAppConfig.redirectUrl
               )
             ).map { tokens =>
-                logger.info( s"Received OAuth access tokens: ${tokens}" )
+                logger.info( s"Received OAuth access tokens: \${tokens}" )
                 tokensDb
                   .insertToken(
                     teamId = tokens.team.id,
@@ -72,15 +72,17 @@ class SlackOAuthRoutes[F[_] : Sync](
               }
               .value
               .flatMap {
-                case Right( _ ) => Ok()
+                case Right( _ ) => {
+                    Ok("Installed")
+                }
                 case Left( err ) => {
-                  logger.info( s"OAuth access error : ${err}" )
+                  logger.info( s"OAuth access error : \${err}" )
                   InternalServerError()
                 }
               }
           }
           case ( _, Some( error ) ) => {
-            logger.info( s"OAuth error code: ${error}" )
+            logger.info( s"OAuth error code: \${error}" )
             Ok()
           }
           case _ => {

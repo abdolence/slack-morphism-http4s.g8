@@ -34,14 +34,14 @@ class SlackPushEventsRoutes[F[_] : Sync](
 
     def onPushEvent( event: SlackPushEvent ) = event match {
       case urlVerEv: SlackUrlVerificationEvent => {
-        logger.info( s"Received a challenge request:\n${urlVerEv.challenge}" )
+        logger.info( s"Received a challenge request:\n\${urlVerEv.challenge}" )
         Ok( urlVerEv.challenge )
       }
       case callbackEvent: SlackEventCallback => {
         extractSlackWorkspaceToken[F]( callbackEvent.team_id ) { implicit slackApiToken =>
           callbackEvent.event match {
             case body: SlackAppHomeOpenedEvent => {
-              logger.info( s"User opened home: ${body}" )
+              logger.info( s"User opened home: \${body}" )
 
               if (body.tab == "home")
                 updateHomeTab( body.user )
@@ -51,13 +51,13 @@ class SlackPushEventsRoutes[F[_] : Sync](
             }
             case msg: SlackUserMessage => {
               logger.info(
-                s"Received a user message '${msg.text.getOrElse( "-" )}' in ${msg.channel.getOrElse( "-" )}"
+                s"Received a user message '\${msg.text.getOrElse( "-" )}' in \${msg.channel.getOrElse( "-" )}"
               )
               sendReplyToMsg( msg )
             }
 
             case unknownBody: SlackEventCallbackBody => {
-              logger.warn( s"We don't handle this callback event we received in this example: ${unknownBody}" )
+              logger.warn( s"We don't handle this callback event we received in this example: \${unknownBody}" )
               Ok()
             }
           }
@@ -65,7 +65,7 @@ class SlackPushEventsRoutes[F[_] : Sync](
       }
 
       case pushEvent: SlackPushEvent => {
-        logger.warn( s"We don't handle this push event we received in this example: ${pushEvent}" )
+        logger.warn( s"We don't handle this push event we received in this example: \${pushEvent}" )
         Ok()
       }
 
@@ -83,7 +83,7 @@ class SlackPushEventsRoutes[F[_] : Sync](
         )
         .flatMap {
           case Right( resp ) => {
-            logger.info( s"Sent a reply message: ${resp}" )
+            logger.info( s"Sent a reply message: \${resp}" )
             Ok()
           }
           case Left( err ) => {
@@ -124,11 +124,11 @@ class SlackPushEventsRoutes[F[_] : Sync](
         )
         .flatMap {
           case Right( publishResp ) => {
-            logger.info( s"Home view for ${userId} has been published: ${publishResp}" )
+            logger.info( s"Home view for \${userId} has been published: \${publishResp}" )
             Ok()
           }
           case Left( err ) => {
-            logger.error( s"Unable to update home view for ${userId}", err )
+            logger.error( s"Unable to update home view for \${userId}", err )
             InternalServerError()
           }
         }
@@ -154,7 +154,7 @@ class SlackPushEventsRoutes[F[_] : Sync](
                 )
               )
               .map { publishResp =>
-                logger.info( s"Home view for ${userId} has been published: ${publishResp}" )
+                logger.info( s"Home view for \${userId} has been published: \${publishResp}" )
                 ()
               }
           } else {
@@ -167,7 +167,7 @@ class SlackPushEventsRoutes[F[_] : Sync](
             Ok()
           }
           case Left( err ) => {
-            logger.error( s"Home view update for ${userId} error: ${err}" )
+            logger.error( s"Home view update for \${userId} error: \${err}" )
             InternalServerError()
           }
         }

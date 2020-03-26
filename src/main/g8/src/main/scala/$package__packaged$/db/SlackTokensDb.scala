@@ -36,7 +36,7 @@ class SlackTokensDb[F[_] : ConcurrentEffect]( storage: SlackTokensDb.SwayDbType 
           )
         )
         .map { record =>
-          logger.debug( s"Inserting record for : ${teamId}/${tokenRecord.userId}" )
+          logger.debug( s"Inserting record for : \${teamId}/\${tokenRecord.userId}" )
           storage.put( teamId, record )
           ()
         }
@@ -102,7 +102,7 @@ object SlackTokensDb extends StrictLogging {
 
     implicitly[ConcurrentEffect[F]]
       .delay {
-        logger.info( s"Opening database in dir: '${config.databaseDir}''" )
+        logger.info( s"Opening database in dir: '\${config.databaseDir}''" )
         persistent.Map[String, TeamTokensRecord, FunctionType, IO]( dir = config.databaseDir ).get
       }
       .map( storage => new SlackTokensDb[F]( storage ) )
