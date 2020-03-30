@@ -29,7 +29,7 @@ ThisBuild / javacOptions ++= Seq(
 )
 
 // Required dependencies
-val slackMorphismVersion = "1.2.6"
+val slackMorphismVersion = "1.3.0"
 
 // This template is for akka and http4s as a primary framework
 val http4sVersion = "0.21.1"
@@ -38,7 +38,7 @@ val sttpVersion = "2.0.6" // for STTP for http4s
 // logging and configs for example
 val logbackVersion = "1.2.3"
 val scalaLoggingVersion = "3.9.2"
-val scoptVersion = "3.7.1"
+val declineVersion = "1.0.0"
 
 // To provide a ready to work example, we're using in this template embedded SwayDb to store tokens
 // You should consider to use more appropriate solutions depends on your requirements
@@ -63,7 +63,11 @@ lazy val root =
         "org.http4s" %% "http4s-dsl" % http4sVersion,
         "com.softwaremill.sttp.client" %% "http4s-backend" % sttpVersion,
         "org.latestbit" %% "slack-morphism-client" % slackMorphismVersion,
-        "com.github.scopt" %% "scopt" % scoptVersion,
+        "com.monovore" %% "decline" % declineVersion
+          exclude ("org.typelevel", "cats-core"),
+        "com.monovore" %% "decline-effect" % declineVersion
+          exclude ("org.typelevel", "cats-core")
+          exclude ("org.typelevel", "cats-effect"),
         "io.swaydb" %% "swaydb" % swayDbVersion
           excludeAll (
             ExclusionRule( organization = "org.scala-lang.modules" ),
