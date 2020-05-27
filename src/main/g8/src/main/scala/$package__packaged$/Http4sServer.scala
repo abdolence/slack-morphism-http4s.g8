@@ -26,7 +26,14 @@ object Http4sServer {
   )( implicit T: Timer[F], C: ContextShift[F] ): Stream[F, Nothing] = {
     for {
       httpClient <- BlazeClientBuilder[F]( global ).stream
-      slackApiClient <- Stream.resource( SlackApiClient.build[F]( Http4sBackend.usingClient( httpClient ) ).resource() )
+      blocker <- Stream.resource( Blocker[F] )
+      slackApiClient <- Stream.resource(
+          SlackApiClient
+              .build[F](
+                  Http4sBackend.usingClient( httpClient, blocker )
+              )
+              .resource()
+      )
       tokensDb <- Stream.resource( SlackTokensDb.open[F]( config ) )
 
       // Combine Service Routes into an HttpApp.
