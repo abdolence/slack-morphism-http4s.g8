@@ -1,6 +1,6 @@
 package $package$
 
-import cats.effect.{ ConcurrentEffect, ContextShift, ExitCode, IO, LiftIO, Timer }
+import cats.effect.{Blocker, ConcurrentEffect, ContextShift, ExitCode, IO, LiftIO, Timer }
 import cats.implicits._
 import cats.effect.implicits._
 
